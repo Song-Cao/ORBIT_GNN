@@ -9,7 +9,7 @@ Tell You Nothing"** (`paper/ORBIT_workshop.md`).
 | | |
 |---|---|
 | Additive model, Pearson *r* on total expression *y* | **0.995** |
-| Fraction of the variance of *y* carried by the interaction term | **0.44%** |
+| Fraction of the variance of *y* carried by the interaction term (held-out doubles) | **1.2%** |
 | Best published deep model vs. a cross-fitted ridge, on the interaction residual | 0.417 vs **0.488** |
 
 Reporting expression-level correlation for combinatorial perturbation models is

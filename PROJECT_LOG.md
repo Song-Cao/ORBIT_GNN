@@ -421,3 +421,28 @@ architecture. What changed is the verdict on the graph — the proposal predicte
 multi-relational encoder would add signal, and the pre-registered test says it does not
 at this sample size. Both the negative result and its measured cause are reported. The
 mechanistic prediction about relation ordering is reported as falsified.
+
+### Post-hoc audit corrections (2026-09-04)
+- `[FINDING]` **Variance-fraction figure was wrong in two saved artifacts.** The paper
+  abstract and README table stated the interaction term carries "0.44%" of the variance
+  of *y*. That number is `1 - r_total(ridge) = 1 - 0.9956`, i.e. the wrong variable
+  combined with a linear-difference formula, not the additive model's variance share.
+  Measured directly on held-out doubles over the 2,000-gene subset:
+  **var(r)/var(y) = 1.19%** (per-split 1.02-1.37%), consistent with
+  `1 - r^2 = 1.17%` from the additive model's own correlation r = 0.9941. Corrected to
+  **1.2%** in `paper/ORBIT_workshop.md` and `README.md`. The earlier session figure of
+  0.82% came from the full 19,264-gene matrix; the 2,000-gene residual-variance subset
+  raises the share, so the two are consistent and 1.2% is the correct figure for the
+  data the paper actually analyses.
+- `[FINDING]` **Two denominators were mixed in §3.** Regulatory coverage was quoted as
+  26% (fraction of all 4,950 possible gene pairs) alongside PPI 16% and co-functional
+  19% (fraction of the 122 *observed* perturbation pairs). On the 122-pair denominator
+  the relations are regulatory **34%**, PPI 16%, co-functional 19%, profile 100%; on the
+  4,950-pair denominator they are 26%, 3%, 4%, 100%. §3 now uses the 122-pair
+  denominator throughout — the population the §4 partial correlations are computed over —
+  and says so explicitly.
+- `[ADJUST]` Fig. 1 panel-a title claimed "every model scores ~0.99 on *y*", which CPA
+  (0.957) does not satisfy. Retitled to the measured ranges ("Totals all sit in
+  0.96-1.00; residuals span 0.00-0.49"), and the caption now names CPA as the low
+  outlier and separates the eight-published-model spread (0.157) from the full plotted
+  spread.

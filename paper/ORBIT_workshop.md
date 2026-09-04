@@ -4,7 +4,7 @@
 Deep models for combinatorial genetic perturbation are routinely evaluated on predicted
 expression, where they reach Pearson *r* ≈ 0.99. We show this number is uninformative:
 the additive expectation built from single-gene effects alone attains *r* = 0.995, and the
-interaction term it omits carries 0.44% of the variance of the target. The reported
+interaction term it omits carries 1.2% of the variance of the target. The reported
 agreement is almost entirely main effects, which every model inherits for free. We
 re-score eight published deep and foundation models (GEARS, CPA, scGPT, scFoundation,
 Geneformer, UCE, scBERT, UCE-33) on the *interaction residual* — what remains after the
@@ -38,8 +38,9 @@ separating the context mean, the additive single-perturbation main effects, and 
 interaction residual *r* — the only term that requires knowing the perturbations were
 applied *together*.
 
-On the Norman et al. double-perturbation benchmark, *r* carries **0.44%** of the variance
-of *y*. The additive expectation *A* = μ + τ_a + τ_b correlates with the observed profile
+On the Norman et al. double-perturbation benchmark, *r* carries **1.2%** of the variance
+of *y* on held-out doubles (var(*r*)/var(*y*) measured directly over the 2,000-gene
+subset; equivalently 1 - *r*^2 = 1.17% from the additive model's correlation). The additive expectation *A* = μ + τ_a + τ_b correlates with the observed profile
 at *r* = 0.995 and reproduces held-out singles to an RMS of 7.7 × 10⁻¹⁰ (it is exact
 there by construction). So a model reported at *r* = 0.99 on *y* has demonstrated that it
 learned the main effects, which are directly measurable from single-perturbation
@@ -67,8 +68,7 @@ scale-invariant, we also report residual *R*² = 1 − ‖r̂ − r‖²/‖r‖
 to magnitude. The two together separate getting the interaction's shape right from
 getting its size right, and we report both throughout.
 
-**Result (Fig. 1a).** All eight methods score *r* ≈ 0.99 on *y* and are ordered by a range
-of 0.04. On the residual they spread over 0.16 and are all beaten by a cross-fitted ridge
+**Result (Fig. 1a).** All eight methods score *r* = 0.957-0.992 on *y*, a range of 0.035. On the residual they spread over 0.16 and are all beaten by a cross-fitted ridge
 on symmetric single-profile pair features:
 
 | method | *r* on residual | *r* on total *y* |
@@ -98,11 +98,14 @@ depend on how the genes relate, and we made a falsifiable prediction before runn
 anything: because 60 of the 100 perturbed genes carry a transcription-factor annotation,
 *regulatory* and *co-functional* relations should outweigh physical PPI.
 
-**Four relation families,** each a dense weighted graph over the 100 perturbed genes:
+**Four relation families,** each a dense weighted graph over the 100 perturbed genes.
+Coverage below is the fraction of the 122 observed perturbation pairs a relation reaches
+(the population the tests in §4 are computed over); coverage over all 4,950 possible gene
+pairs is lower for every relation:
 
 - **regulatory** — TF→target edges from the union of DoRothEA, TRRUST, ENCODE, ITFP,
   TRED, Neph2012 and Marbach2016 (3,127 TFs; 48/100 perturbed genes have a regulon),
-  scored by target-set Jaccard overlap or direct regulation. Reaches 26% of pairs.
+  scored by target-set Jaccard overlap or direct regulation. Reaches 34% of pairs.
 - **physical PPI** — STRING experimental channel. 16% of pairs.
 - **co-functional** — STRING combined score. 19% of pairs.
 - **effect-profile similarity** — correlation of single-perturbation profiles, computed
@@ -234,8 +237,10 @@ verbatim.
 **Figure 1. The estimand shift, its consequences, and its transfer.**
 (**a**) Held-out Pearson correlation for eight published models plus a cross-fitted ridge,
 scored on total expression *y* (light bars) and on the interaction residual *r* (dark
-bars). All methods cluster at *r* ≈ 0.99 on *y*; on *r* they spread over 0.16 and the
-ridge, which uses no graph and no pretraining, ranks first. The additive model is exactly
+bars). Every method's total-expression score falls in 0.957-0.996 (CPA is the lowest at
+0.957); on the residual the same methods span 0.000-0.488 and the ridge, which uses no
+graph and no pretraining, ranks first. Among the eight published models alone the
+residual spread is 0.157. The additive model is exactly
 0 on *r* by construction. Mean over 5 published splits, 31 held-out doubles each.
 (**b**) Ablations of the two-stage estimator, residual *R*² (mean ± s.d. over 3 splits).
 Removing the graph stage is the best configuration; a shuffled graph matches the real one.
@@ -255,6 +260,6 @@ interaction residual while the nuisance supplied to the model is shrunk toward i
 more slowly than without it (orange), but projection also costs accuracy when the nuisance
 is accurate (ρ = 1, left edge). Mean ± s.d. over 5 splits.
 (**b**) Partial correlation of each relation family with per-pair interaction magnitude,
-controlling for effect magnitude, annotated with the fraction of pairs each relation
-reaches. Physical PPI is the strongest relation despite reaching only 16% of pairs; this
+controlling for effect magnitude, annotated with the fraction of the 122 observed
+perturbation pairs each relation reaches. Physical PPI is the strongest relation despite reaching only 16% of pairs; this
 contradicts our pre-registered prediction that regulatory relations would dominate.
