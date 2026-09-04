@@ -551,3 +551,13 @@ mechanistic prediction about relation ordering is reported as falsified.
 - `[ADJUST]` Audit finding: page count was reported as "~4.0 pages" against my own script's
   "~4.7". Corrected; length is now reported as a range across words-per-page assumptions
   with the caveat that only compiling the NeurIPS template settles it.
+- `[FINDING]` Audit: a stale `(Fig. 2a)` survived in Appendix A, pointing at the Horlbeck
+  sweep instead of the nuisance-degradation curve (Fig. A1a). Root cause: the renumbering
+  edit was wrapped in a guard, `if "Appendix A" in s.split("## 5.")[0]`, which tests whether
+  "Appendix A" appears *before* §5 — it never does, so the replace silently never ran. My
+  follow-up bug-hunt grepped only for literal "Fig. 3"/"Figure 3" and so missed it.
+- `[ADJUST]` Fixed, and replaced the grep with a **structural check**: parse every figure
+  definition, then print each cross-reference with its surrounding sentence so panel-level
+  mismatches are visible. All 8 references now verified against their panel content. Two
+  standing lessons: never guard a string edit on a condition you have not asserted, and
+  check cross-references by resolving them, not by grepping for the previous wrong value.

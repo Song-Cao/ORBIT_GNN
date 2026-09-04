@@ -271,7 +271,7 @@ satisfies $\delta \in M$ then $\mathcal{R}(\theta;\delta) = \mathcal{R}(\theta;0
 Testing this requires holding the evaluation target fixed at the true residual and
 degrading only the nuisance supplied to the model, $A_\rho = \bar A + \rho(A - \bar A)$;
 degrading the target as well inverts the curve, because the target becomes the larger,
-easier total signal. With the target fixed (Fig. 2a): at $\rho = 0.25$ the unprojected
+easier total signal. With the target fixed (Fig. A1a): at $\rho = 0.25$ the unprojected
 estimator collapses to $R^2 = -0.89$ while the projected one holds at $-0.25$; at
 $\rho = 0.5$, $-0.27$ versus $-0.07$. But at $\rho = 1$ projection costs accuracy, 0.086
 versus 0.232. The projection is insurance whose premium is only worth paying when the
