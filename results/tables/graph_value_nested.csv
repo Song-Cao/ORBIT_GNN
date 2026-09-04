@@ -1,0 +1,6 @@
+model,n_features,oof_r2
+effect magnitude,1,0.3943146916637613
++ regulatory,2,0.38170726199390226
++ physical PPI,3,0.42301276425357726
++ co-functional,4,0.41954433110397416
++ profile sim.,5,0.45184628831765783

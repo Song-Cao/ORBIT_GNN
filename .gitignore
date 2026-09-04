@@ -1,0 +1,15 @@
+# Large data — regenerate with scripts/00_download.py + 01_prepare_data.R
+data/raw/*
+data/processed/*
+!data/processed/genes_selected.txt
+*.RDS
+*.zip
+# keep the graphs and splits: small, and they define the experiments
+!data/graphs/
+!data/splits/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/
+handoff/
+results/runs/
