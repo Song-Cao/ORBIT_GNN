@@ -523,3 +523,31 @@ mechanistic prediction about relation ordering is reported as falsified.
   the two-stage factorisation is presented as an *instrument* that makes the prior's
   contribution identifiable, which is what Control III requires. This is a more honest
   framing of what it is for, given that the graph stage does not help.
+
+### Round 4: venue re-targeting after deadline lapse (2026-09-04)
+- `[FINDING]` ICBINB-BIO closed **2 September 2026** (extended date) — missed.
+- `[FINDING]` Live deadline scan. Still open: **AI4DD 6 Sep** (5 p full / 2 p short,
+  non-archival, concurrent submissions allowed, Sydney) — the user's originally named
+  venue; **STODY 6 Sep**; **ML4SpatialBio 4 Sep** (hours away); **GEM Bio 3 Sep** (closed);
+  **ML4H 10 Sep** (standalone symposium, archival Proceedings 8 p + non-archival Findings).
+- `[DECISION]` **Primary: AI4DD (6 Sep).** Its call is a direct match — the workshop is
+  built on the observation that "strong performance on static, curated benchmarks does not
+  necessarily persist under prospective experiments, new targets, new chemical series,
+  assay shifts". That is our thesis in their vocabulary. Non-archival with concurrent
+  submissions permitted, so **ML4H Findings (10 Sep)** is a free second shot.
+- `[ADJUST]` Recut to AI4DD's **5-page** limit: abstract compressed 422→~290 w, four
+  contribution bullets folded to one sentence, §5.4 merged into the conclusion, the
+  learning-curve table removed (Fig. 2a plots it; per-*n* values cited to the CSV), the
+  mechanism figure demoted to Appendix A1, and §1's "why not small data" paragraph moved to
+  where its evidence sits (§5.3). §1 reframed to open on target discovery.
+- `[FINDING]` **Two self-inflicted bugs caught by re-reading.** Blind string edits (a) left
+  a dangling "Gains are in held-out $R^2$..." clause after the table was cut, and (b)
+  over-applied figure renumbering so §5.3 pointed at Fig. A1a for the scale result. Both
+  fixed by rewriting §5.3 as a block. Lesson: renumber by rewriting the section, not by
+  global replace.
+- `[VERIFY]` Audit finding: reference [2] checked first-hand against the bioRxiv API —
+  doi:10.1101/2025.07.03.663009, title confirmed, v3 dated 2026-03-10, corresponding
+  author A. Califano. Citation now carries the DOI and version.
+- `[ADJUST]` Audit finding: page count was reported as "~4.0 pages" against my own script's
+  "~4.7". Corrected; length is now reported as a range across words-per-page assumptions
+  with the caveat that only compiling the NeurIPS template settles it.

@@ -2,56 +2,42 @@
 
 ## Abstract
 
-Every reported advance in combinatorial perturbation prediction rests on a *measurement*
-of what an interaction is. We show that three such measurements in current use are
-dominated by quantities that have nothing to do with interaction, and that each failure is
-exposed by a control the field does not routinely run.
+Every reported advance in combinatorial perturbation prediction rests on a *measurement* of
+what an interaction is. We show that three measurements in current use are each dominated
+by something other than interaction, and that each failure is exposed by a control the
+field does not routinely run. **(I)** Models reach Pearson *r* ≈ 0.99 on held-out double
+perturbations, but the additive expectation from single-gene effects alone attains
+*r* = 0.994. Re-scoring eight released models on the **interaction residual** — no
+retraining, using their own published predictions and splits — inverts the ranking: a
+cross-fitted ridge reaches 0.488 ± 0.055 against 0.417 for the best deep model. *Control:
+the additive baseline.* **(II)** Subtracting an additive null is not enough. In growth
+screens that null is biased for strong-effect genes, and **73.9%** of the naive residual's
+variance is this artifact; the naive residual *anti*-correlates between two cell lines
+(*r* = −0.290) where the corrected score correlates positively (+0.200, *n* = 104,196).
+*Control: cross-assay reproducibility.* **(III)** On a 108,799-pair CRISPRi map, curated
+priors (regulatory, PPI, co-functional) give a gain **flat in *n*** at +0.0014 held-out
+*R*², indistinguishable from a shuffled graph, while structure *inferred from the training
+interactions* scales to **+0.0274**; curated edges reach under 6% of gene pairs at genome
+scale. *Control: shuffled graph plus a sample-size sweep.* The binding constraint is
+measurement validity, not model capacity.
 
-**(I) Scoring expression.** Deep and foundation models reach Pearson *r* ≈ 0.99 on
-held-out double perturbations, but the additive expectation assembled from single-gene
-effects alone attains *r* = 0.994. The metric cannot see interaction. Re-scoring eight
-released models on the **interaction residual** — at no retraining cost, using their own
-published predictions and splits — inverts the ranking: a cross-fitted ridge reaches
-*r* = 0.488 ± 0.055 against 0.417 for the best deep model. *Control: the additive
-baseline.*
-
-**(II) Scoring the naive residual.** Subtracting an additive null is not sufficient. In
-growth screens the sum null is biased for strong-effect genes, and we find **73.9%** of the
-variance of the naive residual is this effect-size artifact. The consequence is
-diagnostic rather than cosmetic: the naive residual is *anti*-correlated between two cell
-lines (*r* = −0.290) while the corrected interaction score is positively correlated
-(*r* = +0.200, *n* = 104,196). *Control: cross-assay reproducibility.*
-
-**(III) Conditioning on curated graphs.** Given a valid target, relational priors are the
-standard remedy. On a 108,799-pair CRISPRi interaction map we sweep training size across
-three orders of magnitude: curated priors (regulatory, physical PPI, co-functional) yield a
-gain that is **flat in *n*** at +0.0014 held-out *R*² and indistinguishable from a shuffled
-graph, while structure *inferred from the training interactions themselves* scales from
-+0.0003 to **+0.0274**. Curated edges reach under 6% of gene pairs at genome scale and do
-not become more useful with more data. *Control: shuffled graph plus a sample-size sweep.*
-
-The unifying claim is that the binding constraint in this task is measurement validity,
-not model capacity. What survives all three controls is a cross-fitted linear estimator on
-the correctly-defined residual, and data-derived rather than curated relational structure.
-
-**Contributions.**
-1. A re-scoring protocol that inverts the published ranking of eight perturbation models
-   at zero retraining cost, with the additive baseline as the control that motivates it.
-2. Quantification of an effect-size artifact that dominates naive interaction residuals in
-   growth screens, validated against cross-cell-line reproducibility.
-3. A sample-size sweep separating *prior provenance* from *prior reachability*, showing
-   curated graph priors do not improve with data while inferred structure does.
-4. Three reusable controls, each cheap, each of which reverses a conclusion the field
-   currently draws.
+**Contributions.** (1) a re-scoring protocol that inverts the published ranking of eight
+perturbation models at zero retraining cost; (2) quantification of an effect-size artifact
+that dominates naive interaction residuals, validated against cross-assay reproducibility;
+(3) a sample-size sweep separating prior *provenance* from prior *reachability*; and (4)
+three cheap, reusable controls, each of which reverses a conclusion the field draws.
 
 ---
 
 ## 1. Introduction
 
-Predicting what happens when two genes are perturbed together is central to cell modelling
-and to target discovery, and the reported numbers are strong: recent deep and foundation
-models attain Pearson correlations near 0.99 against measured expression on held-out
-double perturbations.
+Combinatorial perturbation prediction is a workhorse of computational target discovery:
+which two genes, knocked down together, produce a non-additive phenotype worth pursuing.
+The reported numbers are strong — recent deep and foundation models attain Pearson
+correlations near 0.99 against measured expression on held-out double perturbations. Yet
+this is precisely the setting where strong benchmark performance is known not to survive
+contact with a new assay, and we show why: the benchmark metric does not measure the
+quantity that target selection depends on.
 
 **The problem is not the models; it is what "interaction" was taken to mean.** For a
 perturbation set *S* in context *c*,
@@ -59,35 +45,26 @@ perturbation set *S* in context *c*,
 $$y_{S,c} \;=\; \mu_c \;+\; \sum_{a \in S} \tau_{a,c} \;+\; r_{S,c} \;+\; \varepsilon ,$$
 
 where μ is the context mean, τ are additive single-perturbation main effects, and $r$ — the
-**interaction residual** — is the only term that requires the perturbations to have been
-applied *together*. On the standard Norman benchmark the additive expectation
-$A = \mu + \tau_a + \tau_b$ already correlates with the observed profile at $r = 0.994$,
-and $r$ carries 1.2% of the variance of $y$. A model scored at 0.99 has therefore
-demonstrated that it recovered main effects — directly measurable from single-perturbation
-experiments, requiring no model at all.
+**interaction residual** — is the only term requiring that the perturbations were applied
+*together*. On Norman the additive expectation $A = \mu + \tau_a + \tau_b$ already
+correlates with the observed profile at $r = 0.994$, and $r$ carries just 1.2% of the
+variance of $y$. A model scored at 0.99 has therefore shown that it recovered main effects
+— directly measurable from single-perturbation experiments, requiring no model at all.
 
 **Our thesis.** This is one instance of a general pattern: a quantity is reported as
 evidence about interaction while being dominated by something else. We identify three such
-mismeasurements along the natural path a practitioner would take — score expression, then
-score the residual, then condition on a graph prior — and show that each is caught by a
-simple control, and that each control reverses the conclusion. Progress here is limited by
-measurement validity, not by capacity.
-
-**Why the third failure is not just "small data".** A negative result about graph priors on
-a benchmark with ~62 training pairs is uninterpretable: it cannot distinguish an
-uninformative prior from an unreachable one. We resolve this by scaling the same estimand
-to a 108,799-pair interaction map and sweeping *n*. Curated priors stay flat; inferred
-structure scales. The distinction is *provenance*, and it only becomes visible at scale.
+mismeasurements along the path a practitioner actually takes — score expression, then score
+the residual, then condition on a graph prior — and show that each is caught by a simple
+control, and that each control reverses the conclusion.
 
 ## 2. Background
 
 **Perturbation prediction.** GEARS and CPA introduce graph and compositional priors;
 scGPT, scFoundation, Geneformer, UCE and scBERT are transcriptomic foundation models
 evaluated on perturbation tasks. Ahlmann-Eltze et al. [1] showed these models do not
-outperform simple linear baselines on double perturbations, using the interaction residual
-as an *evaluation* device. We make the residual the reported metric and the training
-target, re-score their released predictions directly, and then audit the residual itself —
-which is where failures (II) and (III) appear.
+outperform linear baselines on double perturbations, using the interaction residual as an
+*evaluation* device. We make the residual the reported metric, re-score their released
+predictions, and then audit the residual itself — where failures (II) and (III) appear.
 
 **Graph priors.** GREmLN [2] embeds gene-regulatory structure inside transformer attention
 and argues that structural priors "risk introducing noisy or biased priors", motivating
@@ -96,11 +73,10 @@ quantitative counterpart: we measure how curated and inferred structure behave a
 grows and find they diverge by a factor of twenty.
 
 **Interaction estimation.** Cross-fitting and orthogonalisation are standard in
-double/debiased machine learning for removing nuisance-estimation bias. AttentionPert
-models non-additive effects but analyses residual errors only as post hoc diagnostics; its
-full text contains no orthogonalisation or cross-fitting. The effect-size bias of
+double/debiased ML for removing nuisance-estimation bias. AttentionPert models non-additive
+effects but treats residual errors as post hoc diagnostics only. The effect-size bias of
 additive nulls is known in the classical genetic-interaction literature; failure (II)
-quantifies what ignoring it costs a machine-learning pipeline.
+quantifies what ignoring it costs an ML pipeline.
 
 ## 3. Method: the estimand and its three controls
 
@@ -111,8 +87,8 @@ single perturbations in training folds only. The target is
 
 $$r_{ab} \;=\; y_{ab} - \hat A_{ab} \;\in\; \mathbb{R}^{G}$$
 
-over $G$ read-outs. **Control I** is the additive baseline itself: any metric on which
-$\hat A$ scores well is not measuring interaction.
+over $G$ read-outs. **Control I** is $\hat A$ itself: any metric on which the additive
+baseline scores well is not measuring interaction.
 
 ### 3.2 Correcting the target (Control II)
 
@@ -128,15 +104,15 @@ anti-correlates across cell lines is measuring the assay, not the biology.
 
 ### 3.3 An instrument for testing prior value (Control III)
 
-To ask whether a relational prior helps, the prior's contribution must be *identifiable*.
-A standard relational layer updates node states as
+To ask whether a relational prior helps, its contribution must be *identifiable*. A
+standard relational layer updates node states as
 
 $$h_i^{(l+1)} \;=\; \phi\!\left(h_i^{(l)},\; \operatorname{AGG}_{j \in \mathcal{N}(i)} \alpha_{ij}^{(l)} W^{(l)} h_j^{(l)}\right),$$
 
-but end-to-end training conflates the prior's value with the estimator's capacity. We
-therefore factor the problem. **Stage 1** predicts interaction *shape* with a cross-fitted
-ridge on symmetric pair features $\psi_{ab} = [x_a + x_b,\; x_a \odot x_b,\; |x_a - x_b|]$
-built from single-perturbation profiles $x$:
+but end-to-end training conflates the prior's value with the estimator's capacity, so we
+factor the problem. **Stage 1** predicts interaction *shape* with a cross-fitted ridge on
+symmetric pair features $\psi_{ab} = [x_a + x_b,\; x_a \odot x_b,\; |x_a - x_b|]$ from
+single-perturbation profiles $x$:
 
 $$W_1 \;=\; \arg\min_W \sum_{(a,b) \in \mathcal{D}_{\text{tr}}} \lVert W\psi_{ab} - r_{ab}\rVert^2 + \lambda \lVert W \rVert_F^2 ,$$
 
@@ -150,23 +126,21 @@ g_{ab} = 1 + \tanh\!\big(u^\top B(z_a,z_b)\big),$$
 
 with $B(z_a,z_b) = \sum_{m=1}^{k} \sigma_m (v_m^\top z_a)(v_m^\top z_b)$ symmetric in
 $(a,b)$, giving $\hat r_{ab} = g_{ab} \cdot \tilde r^{(1)}_{ab}$. The $\tanh$ lets the graph
-attenuate or amplify but never flip sign; $k=16$ is set by the measured effective rank of
-the residual matrix (11.3, against 30.9 for a variance-matched permuted null).
+attenuate or amplify but never flip sign; $k=16$ is set by the residual matrix's measured
+effective rank (11.3, against 30.9 for a variance-matched permuted null).
 
 Stage 2's increment over stage 1 **is** the prior's value. Control III pairs this with two
-falsifiers: a **shuffled graph** (same capacity, no real edges) and a **sweep over
-training size** (which separates an uninformative prior from an unreachable one). We also
-constrain stage-2 outputs to the orthogonal complement of a nuisance subspace spanned by
-the constant and mean-additive directions; Appendix A reports its behaviour.
+falsifiers: a **shuffled graph** (same capacity, no real edges) and a **sweep over training
+size**, which separates an uninformative prior from an unreachable one. Stage-2 outputs are
+additionally constrained to a nuisance subspace's orthogonal complement (Appendix A).
 
 ### 3.4 Relations, curated and inferred
 
 Four families: **regulatory** (TF→target; union of DoRothEA, TRRUST, ENCODE, ITFP, TRED,
 Neph2012, Marbach2016), **physical PPI** (STRING experimental), **co-functional** (STRING
-combined), and **data-derived** interaction-profile similarity computed from training
-pairs only. The first three are curated from literature; the last is inferred from the
-data being modelled. §5.3 shows this distinction, not sample size, governs whether
-relational structure helps.
+combined), all curated from literature; and **data-derived** interaction-profile similarity
+computed from training pairs only. §5.3 shows this curated/inferred distinction, not sample
+size, governs whether relational structure helps.
 
 ## 4. Experimental setup
 
@@ -179,9 +153,8 @@ CRISPRi dual-guide growth-interaction map (GSE116198) [3] in K562 and Jurkat, ag
 two cell lines supply the independent assay that Control II requires.
 
 **Metrics.** Per-pair Pearson *r* (shape) and residual
-$R^2 = 1 - \lVert\hat r - r\rVert^2/\lVert r\rVert^2$ (magnitude). Both are reported
-because per-pair Pearson is scale-invariant and therefore structurally blind to magnitude
-calibration — a subtlety that initially masked stage 2's behaviour completely.
+$R^2 = 1 - \lVert\hat r - r\rVert^2/\lVert r\rVert^2$ (magnitude). Both are needed: per-pair
+Pearson is scale-invariant and therefore structurally blind to magnitude calibration.
 
 **Baselines.** Eight released models (GEARS, CPA, scGPT, scFoundation, Geneformer, UCE,
 scBERT, UCE-33) re-scored as $\hat r = \hat y - A$; plus additive (zero), mean training
@@ -212,15 +185,14 @@ interaction residual they span 0.260–0.417 and every one loses to the ridge (F
 | additive model | 0.000 | 0.995 |
 
 The additive model scores exactly 0 on the residual and 0.995 on $y$: the argument in two
-numbers. Re-scoring requires no retraining, so this control is available to anyone who
-releases predictions. (UCE and scBERT predictions in the release are numerically identical,
-$r = 1.000000$, and scGPT is 0.999 against both; we report them as released but they are
-not three independent points.)
+numbers. Re-scoring needs no retraining, so this control is available to anyone releasing
+predictions. (UCE and scBERT predictions in the release are numerically identical
+($r = 1.000000$) and scGPT is 0.999 against both, so they are not three independent points.)
 
 ### 5.2 Mismeasurement II — the naive residual is mostly effect size
 
 Applying the correction of §3.2 to the Horlbeck map removes **73.9%** of the variance of
-the naive residual (Fig. 3c). Control II shows this is not a matter of taste: across the two
+the naive residual (Fig. 2c). Control II shows this is not a matter of taste: across the two
 cell lines the naive residual is anti-correlated ($r = -0.290$) while the corrected score
 is positively correlated ($r = +0.200$, $n = 104{,}196$). A target that disagrees with
 itself across assays cannot support a relational claim; all Horlbeck results below use the
@@ -228,65 +200,51 @@ corrected score.
 
 ### 5.3 Mismeasurement III — curated priors do not improve with data
 
-On Norman, the graph stage fails its pre-registered test: over 5 splits × 3 seeds it
-reaches residual $R^2 = 0.103$ against **0.274** with the stage removed, and a shuffled
-graph scores 0.110 — higher than the real graph on every split tested (paired *t*
-$p = 0.06$, $n = 3$). Learned relation weights stay uniform at ≈0.25 (Fig. 1b): the model
-never differentiates the relations. Our mechanistic prediction is also falsified — physical
-PPI is the strongest single relation (partial $r = +0.275$ controlling for effect
-magnitude) despite the perturbed genes being predominantly TFs and regulatory having the
-widest coverage (Fig. 2b).
+On Norman the graph stage fails its pre-registered test: over 5 splits × 3 seeds it reaches
+residual $R^2 = 0.103$ against **0.274** with the stage removed, and a shuffled graph
+scores 0.110 — higher than the real graph on every split tested (paired *t* $p = 0.06$,
+$n = 3$). Learned relation weights stay uniform at ≈0.25 (Fig. 1b): the model never
+differentiates the relations. Our mechanistic prediction is also falsified — physical PPI
+is the strongest single relation (partial $r = +0.275$ controlling for effect magnitude)
+despite the perturbed genes being predominantly TFs and regulatory having the widest
+coverage (Fig. A1b).
 
-At $n \approx 62$ this is uninterpretable, so we sweep training size on Horlbeck with a
-fixed 20,000-pair test set and 3 seeds (Fig. 3a). Gains are in held-out $R^2$ over an
-effect-magnitude control:
+At $n \approx 62$ such a null is uninterpretable: it cannot separate an uninformative prior
+from an unreachable one. We therefore sweep training size on Horlbeck, 3 seeds, fixed
+20,000-pair test set, reporting gains in held-out $R^2$ over an effect-magnitude control
+(Fig. 2a). **Curated priors are flat in *n***: +0.0003 at $n = 2{,}000$ rising only to
++0.0014 at $n = 86{,}953$, sitting exactly on their shuffled control across three orders of
+magnitude. The data-derived graph is flat until $n \approx 10^4$ and then scales — +0.0159
+at $n = 60{,}000$ and **+0.0274** at $n = 86{,}953$, twenty times larger and well clear of
+its own shuffled control. Coverage explains the asymmetry: curated relations reach 1.9%
+(regulatory), 4.1% (physical PPI) and 5.6% (co-functional) of gene pairs, against 100% for
+the inferred relation (Fig. 2b). Per-*n* values are in
+`results/tables/horlbeck_learning_curve.csv`.
 
-| training pairs *n* | curated priors | data-derived graph | shuffled control |
-|---|---|---|---|
-| 2,000 | +0.0003 | +0.0003 | +0.0003 |
-| 6,000 | +0.0007 | +0.0006 | +0.0006 |
-| 20,000 | +0.0010 | +0.0020 | +0.0010 |
-| 60,000 | +0.0014 | +0.0159 | +0.0013 |
-| 86,953 | **+0.0014** | **+0.0274** | +0.0014 |
-
-Curated priors are **flat in *n***: three orders of magnitude more data leaves them at
-+0.0014, exactly their shuffled control. The data-derived graph is also flat until
-$n \approx 10^4$, then scales to a gain twenty times larger. Coverage explains the
-asymmetry — at genome scale curated relations reach 1.9% (regulatory), 4.1% (physical PPI)
-and 5.6% (co-functional) of gene pairs, against 100% for the inferred relation (Fig. 3b).
-
-This is the interpretation the Norman result alone could not license. The failure is not
-that the prior was unreachable at small $n$; it is that curated edges carry little
-transferable relational signal *at any $n$ we can reach*, while structure inferred from the
-interactions themselves does — the quantitative form of GREmLN's argument [2].
-
-### 5.4 What survives the three controls
-
-A cross-fitted linear estimator on the correctly-defined residual, and inferred rather than
-curated relational structure. Nothing in our results supports adding literature graph
-priors to an interaction predictor; the honest recommendation is to spend the modelling
-budget on the estimand and on inferred structure at scale.
+Norman alone could not license this reading. The prior was not merely unreachable at small
+$n$: curated edges carry little transferable relational signal *at any $n$ we can reach*,
+while inferred structure does — the quantitative form of GREmLN's argument [2].
 
 ## 6. Conclusion and limitations
 
 Three measurements in routine use — expression-level correlation, the naive additive
 residual, and curated graph priors — are each dominated by something other than
-interaction, and each is caught by a control that costs almost nothing to run. We suggest
-these controls become standard: report the additive baseline alongside any expression
+interaction, and each is caught by a control that costs almost nothing to run. What
+survives all three is a cross-fitted linear estimator on the correctly-defined residual
+plus inferred rather than curated structure: nothing here supports adding literature graph
+priors to an interaction predictor. We suggest these controls become standard: report the additive baseline alongside any expression
 metric, validate an interaction target against an independent assay, and pair any graph
 prior with a shuffled control and a sample-size sweep.
 
 **Limitations.** Norman is one cell type with 31 test doubles per split, and the 2,000-gene
-subset captures 70% of training residual sum of squares rather than all of it. Horlbeck
-measures a growth phenotype, not expression, so failures (II) and (III) are established at
-scale but on a different read-out from failure (I); extending the sweep to a large
-expression-based combinatorial screen is the natural next step and, to our knowledge, no
-such screen currently exists at $10^5$ pairs. The data-derived graph's advantage may partly
-reflect measurement noise shared between the graph and the target — the shuffled control
-bounds this but does not fully exclude it, and a held-out-assay version of the inferred
-graph would settle it. Our claims concern genetic interaction in these two screens and we
-do not extrapolate to drug-combination synergy. Total compute for all reported results is
-under 8 CPU-hours with no GPU.
+subset captures 70% of training residual sum of squares. Horlbeck measures growth, not
+expression, so failures (II) and (III) are established at scale but on a different read-out
+from failure (I); extending the sweep to a large expression-based combinatorial screen is
+the natural next step, and to our knowledge none exists at $10^5$ pairs. The data-derived
+graph's advantage may partly reflect measurement noise shared between graph and target —
+the shuffled control bounds this but does not exclude it, and a held-out-assay version of
+the inferred graph would settle it. We do not extrapolate to drug-combination synergy.
+All reported results take under 8 CPU-hours, no GPU.
 
 ## References
 
@@ -294,8 +252,9 @@ under 8 CPU-hours with no GPU.
 prediction does not yet outperform simple linear baselines. *Nature Methods*
 22:1657–1661, 2025. doi:10.1038/s41592-025-02772-6
 
-[2] GREmLN: A Cellular Graph Structure Aware Transcriptomics Foundation Model. bioRxiv
-2025.07.03.663009.
+[2] GREmLN: A Cellular Graph Structure Aware Transcriptomics Foundation Model. bioRxiv,
+doi:10.1101/2025.07.03.663009 (v3, 10 March 2026; corresponding author A. Califano).
+Verified against the bioRxiv API.
 
 [3] M. Horlbeck et al. Mapping the genetic landscape of human cells. *Cell* 174:953–967,
 2018. GEO GSE116198.
@@ -336,29 +295,29 @@ scoring the total hides whether the interaction was learned.
 
 ---
 
-## Figures
+## Main figures
 
 **Figure 1. Mismeasurement I, and the instrument.** (**a**) Held-out Pearson for eight
 published models plus the cross-fitted ridge, on total expression (light) and interaction
-residual (dark). Every method's total score falls in 0.957–0.996 (CPA lowest at 0.957);
-residuals span 0.000–0.488. Mean over 5 published splits. (**b**) Ablations, residual $R^2$
-(mean ± s.d., 3 splits): removing the graph stage is best; a shuffled graph matches the
-real one. (**c**) Nested out-of-fold $R^2$ for per-pair interaction magnitude on Norman,
-adding relation families over an effect-magnitude control. (**d**) Appendix B: paired
-per-month gain in residual co-movement $R^2$ over 281 out-of-sample months; error bars 95%
-CI of the paired mean, *p*-values Wilcoxon signed-rank.
+residual (dark); totals fall in 0.957–0.996 (CPA lowest), residuals span 0.000–0.488, mean
+over 5 published splits. (**b**) Ablations, residual $R^2$ (mean ± s.d., 3 splits): removing
+the graph stage is best, and a shuffled graph matches the real one. (**c**) Nested
+out-of-fold $R^2$ for per-pair interaction magnitude, adding relation families over an
+effect-magnitude control. (**d**) Appendix B: paired per-month gain in residual co-movement
+$R^2$ over 281 out-of-sample months; error bars 95% CI of the paired mean, Wilcoxon
+*p*-values.
 
-**Figure 2. Mechanism.** (**a**) Appendix A: nuisance-degradation curve with the evaluation
+**Figure 2. Mismeasurements II and III.** (**a**) Gain in held-out $R^2$ over an
+effect-magnitude control versus training pairs (log scale); Horlbeck corrected interaction
+score, 3 seeds, fixed 20,000-pair test set. Curated priors are flat in *n* and sit on their
+shuffled control; the data-derived graph scales to +0.027. The shaded band marks the Norman
+training regime ($n \approx 62$), where the distinction is invisible. (**b**) Fraction of
+the 108,799 gene pairs each relation reaches. (**c**) 74% of the naive residual's variance
+is an effect-size artifact.
+
+**Appendix figure A1. Mechanism.** (**a**) Nuisance-degradation curve with the evaluation
 target held fixed; projection slows degradation but costs accuracy at $\rho = 1$.
 (**b**) Partial correlation of each relation with per-pair interaction magnitude on Norman,
 controlling for effect magnitude, annotated with the fraction of the 122 observed
 perturbation pairs each relation reaches. Physical PPI is strongest, falsifying our
 pre-registered prediction that regulatory relations would dominate.
-
-**Figure 3. Mismeasurements II and III.** (**a**) Gain in held-out $R^2$ over an
-effect-magnitude control versus training pairs (log scale), Horlbeck corrected interaction
-score, 3 seeds, fixed 20,000-pair test set. Curated priors are flat in *n* and sit on their
-shuffled control; the data-derived graph scales to +0.027. Shaded band marks the Norman
-training regime ($n \approx 62$), where the distinction is invisible. (**b**) Fraction of
-the 108,799 gene pairs each relation reaches. (**c**) Variance of the naive residual versus
-the corrected score: 74% of the naive residual is an effect-size artifact.
