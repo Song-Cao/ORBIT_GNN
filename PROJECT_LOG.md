@@ -446,3 +446,51 @@ mechanistic prediction about relation ordering is reported as falsified.
   0.96-1.00; residuals span 0.00-0.49"), and the caption now names CPA as the low
   outlier and separates the eight-published-model spread (0.157) from the full plotted
   spread.
+
+---
+
+## Round 2: GREmLN, scale, and paper restructuring (2026-09-04)
+
+### GREmLN review (user-supplied reference)
+- `[FINDING]` GREmLN's own related-work section states our concern first-hand: structural
+  priors "risk introducing noisy or biased priors", and hard attention masking or additive
+  structural bias do not constitute real structural message passing. Their response is to
+  use GRNs **inferred from expression** (ARACNe-style) rather than literature curation.
+- `[DECISION]` Transferable element adopted: the curated-vs-inferred distinction as a
+  *testable axis*, not their architecture. We do not need a foundation model to test it —
+  we need a dataset large enough to sweep *n*.
+
+### New data: Horlbeck 2018 CRISPRi interaction map (GSE116198)
+- `[DECISION]` Adopted as the second dataset, resolving the user's data-insufficiency
+  question. 922,455 sgRNA-pair rows -> **108,799 gene pairs over 467 genes**, K562 and
+  Jurkat. Three orders of magnitude beyond Norman's 62 training pairs, and the two cell
+  lines give an external reproducibility axis Norman entirely lacks.
+- `[FINDING]` **Measurement bug caught in our own first pass.** Using gene-paired-with-itself
+  as the single-gene effect gave residual variance *exceeding* observed (225% in K562) —
+  because that pairing is a double knockdown, not a single. Corrected to control-paired
+  guides, giving additive r = 0.965 and residual 15.4% of variance in Jurkat.
+- `[FINDING]` **74% of the naive interaction residual is a known effect-size artifact.**
+  The sum null is biased for strong-effect genes; regressing out a smooth function of the
+  expected phenotype (standard GI correction) removes 73.9% of the residual variance. The
+  naive residual is *anti*-correlated across cell lines (r = -0.290) while the corrected
+  score is positively correlated (r = +0.200, n = 104,196). Any relational claim on the
+  uncorrected residual measures the artifact. All Horlbeck results use the corrected score.
+
+### The decisive scaling result
+- `[FINDING]` Sweeping training size 60 -> 86,953 pairs (3 seeds, fixed 20,000-pair test):
+  **curated priors are flat in n** (+0.0003 -> +0.0014, indistinguishable from shuffled),
+  while the **data-derived graph scales** (+0.0003 -> +0.0274, 20x larger). Coverage at
+  genome scale: regulatory 1.9%, physical PPI 4.1%, co-functional 5.6%, data-derived 100%.
+- `[DECISION]` This **reframes the S5 kill condition**. The Norman failure was read as
+  small-n; the sweep shows it is *prior provenance*. Curated edges carry little
+  transferable relational signal at any reachable n; inferred structure does. That is a
+  sharper and more useful claim than "we needed more data", and it independently supports
+  the user's hypothesis that we were over-relying on incomplete graph priors.
+
+### Paper restructuring
+- `[ADJUST]` Rewritten from a findings compilation into standard methodological form:
+  Abstract + 4 contribution bullets; §1 Introduction (problem -> why existing approaches
+  fail -> insight -> method -> results); §2 Background (~0.5 p); §3 Method with 6 numbered
+  equations including the general message-passing form and exactly what we change; §4
+  Setup; §5 Results (6 subsections); §6 Conclusion/limitations; references. Title changed
+  from a rhetorical question to a declarative methodological statement.
