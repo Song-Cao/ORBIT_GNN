@@ -494,3 +494,32 @@ mechanistic prediction about relation ordering is reported as falsified.
   equations including the general message-passing form and exactly what we change; §4
   Setup; §5 Results (6 subsections); §6 Conclusion/limitations; references. Title changed
   from a rhetorical question to a declarative methodological statement.
+
+### Round 3: venue targeting and single-thesis restructure (2026-09-04)
+- `[FINDING]` **Venue check, grounded in the 2026 call texts.** ICBINB-BIO (NeurIPS 2026)
+  solicits exactly this paper: "strong benchmark results often fail to survive new
+  mutations, perturbations, individuals, assays, or deployment settings ... what breaks,
+  why it breaks, how we should evaluate it". Our three failures are one instance each of
+  that description, and negative results with identified causes are the workshop's
+  explicit subject rather than a liability. AI4DD 2026 is framed around "robust,
+  trustworthy, and translatable AI for real-world drug discovery" and is non-archival with
+  concurrent submissions allowed, so it is a compatible second target; GenBio moved to
+  ICML for 2026.
+- `[DECISION]` **Primary: ICBINB-BIO. Secondary: AI4DD.** Both are reachable with the same
+  manuscript; AI4DD's non-archival policy permits concurrent submission.
+- `[ADJUST]` **Restructured around one thesis** in response to the "compilation of
+  findings" critique. New title "Three Ways to Mismeasure a Genetic Interaction". The
+  thesis: the binding constraint in combinatorial perturbation prediction is measurement
+  validity, not model capacity. The three former standalone findings are now numbered
+  instances (I expression-level scoring, II the naive residual, III curated graph priors)
+  ordered along the path a practitioner actually takes, each paired with the cheap control
+  that catches it (additive baseline / cross-assay reproducibility / shuffled graph plus
+  sample-size sweep).
+- `[ADJUST]` The two genuinely peripheral results were **demoted to appendices**: the
+  nuisance projection (Appendix A) and the finance transfer (Appendix B, reframed as
+  evidence that mismeasurement I is structural rather than biological). This removes the
+  two weakest-linked claims from the main narrative without discarding the work.
+- `[FINDING]` The method section is now motivated by the thesis rather than by novelty:
+  the two-stage factorisation is presented as an *instrument* that makes the prior's
+  contribution identifiable, which is what Control III requires. This is a more honest
+  framing of what it is for, given that the graph stage does not help.
