@@ -605,11 +605,43 @@ mechanistic prediction about relation ordering is reported as falsified.
   curve. To reach R^2 ~ 0.25 on a new gene you need ~75 screened pairs for it; no graph
   prior substitutes. That is a budget statement a screening group can act on, and it is
   the answer to "so what should I do differently?"
-- `[VERIFY]` **Novelty check, and it nearly cost us.** Low-rank completion of GI maps is
-  established: NG-MC (Zitnik & Zupan, J Comput Biol 2015) and IP-MC (2014) both do
-  low-rank probabilistic completion of E-MAPs, and NG-MC's explicit premise is that adding
-  curated gene networks improves it. Claiming the estimator as novel would have been a
-  fatal overlap. **Repositioned**: the estimator is prior art used as an instrument, and
-  our contribution is that its network-guided premise **fails at genome scale** (curated
-  +0.0014 vs completion +0.488) plus the cold-start and density results, which that
-  literature -- built on ~30% missing-at-random E-MAPs -- never tested.
+- `[VERIFY]` **Novelty check, verified against Crossref and PubMed (not recall).** Low-rank
+  completion of genetic-interaction maps is established prior art:
+  - **NG-MC** — Žitnik M, Zupan B, "Data Imputation in Epistatic MAPs by Network-Guided
+    Matrix Completion", *J Comput Biol* 22(6):595-608, Jun 2015, doi:10.1089/cmb.2014.0158,
+    PMID 25658751.
+  - **IP-MC** — Žitnik M, Zupan B, "Imputation of Quantitative Genetic Interactions in
+    Epistatic MAPs by Interaction Propagation Matrix Completion", *Lecture Notes in
+    Computer Science*, 2014, doi:10.1007/978-3-319-05269-4_35. (Same authors as NG-MC, not
+    a separate group as I had implied.)
+  - Also retrieved: Ryan, Cagney, Krogan, Cunningham, "Imputing and Predicting Quantitative
+    Genetic Interactions in Epistatic MAPs", *Methods Mol Biol*, 2011,
+    doi:10.1007/978-1-61779-276-2_17.
+  Claiming the estimator as novel would have been a fatal overlap. **Repositioned**: it is
+  prior art used as an instrument.
+- `[FINDING]` **Reading the NG-MC abstract changes our cold-start claim, and strengthens
+  it.** Verbatim: its core is "low-rank probabilistic matrix completion that incorporates
+  prior knowledge presented as a collection of gene networks", and — critically —
+  "[i]nclusion of information from gene networks also allowed NG-MC to predict interactions
+  for genes that were not included in original E-MAP assays". That is *exactly* our
+  cold-start setting, and they report curated networks solving it. Our cold-start result
+  (curated +0.0005, completion +0.0012, both ~0 at n=467 genes / 108,799 pairs) is
+  therefore **not merely an untested regime but a direct contradiction of a published
+  claim** — a sharper contribution than "nobody tested this", and the honest framing for
+  the paper.
+- `[RISK]` That contradiction needs care before it is asserted in print. Differences that
+  could explain it rather than refute them: organism and assay (yeast E-MAP growth vs human
+  CRISPRi), their networks (PPI + GO similarity) vs ours (regulatory union + STRING), their
+  evaluation metric, and their gene-coverage regime. **Action before submission:** read the
+  NG-MC results section in full and either (a) match their protocol closely enough to make
+  it a genuine head-to-head, or (b) state the contradiction as
+  regime-specific-and-unexplained rather than as a refutation.
+- `[ADJUST]` Corrected a second recalled figure: I wrote that this literature was built on
+  "~30% missing" E-MAPs. The NG-MC abstract states **up to 40%**. Both the number and its
+  provenance are now first-hand.
+- `[FINDING]` Root cause, identical to the three earlier citation errors: specificity
+  (author, journal, year, premise) supplied from recall around a genuinely retrieved
+  search-result anchor. The standing citation rule exists precisely for this and was not
+  applied. **Process fix:** the rule now applies to *prior-art positioning claims*, not
+  just reference-list entries — any sentence asserting what a cited paper assumed, claimed,
+  or found must be traced to retrieved text before it is written.
