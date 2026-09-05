@@ -561,3 +561,55 @@ mechanistic prediction about relation ordering is reported as falsified.
   mismatches are visible. All 8 references now verified against their panel content. Two
   standing lessons: never guard a string edit on a condition you have not asserted, and
   check cross-references by resolving them, not by grepping for the previous wrong value.
+
+## Round 5: acceptance-odds gate and the generalization experiments (2026-09-04)
+
+### Honest assessment of the pre-round-5 draft
+- `[FINDING]` Estimated acceptance probability **~30-40% at AI4DD**. Diagnosis: the paper
+  was three negative results plus a re-scoring protocol. Negative results place a ceiling
+  on enthusiasm unless they either (a) overturn something the field actively believes, or
+  (b) come with a positive prescription. We had (a) weakly and (b) not at all. A reviewer
+  could accept every number and still ask "so what should I do differently?"
+- `[DECISION]` Rather than add architecture (which the data does not support -- n=62 on
+  Norman, and the graph stage genuinely fails), run the two experiments that convert the
+  negative results into a decision-relevant positive claim.
+
+### Experiment A: warm start vs cold start (`scripts/10_generalization.py`)
+- `[DECISION]` Random pair holdout gives every test gene ~372 screened partners. Target
+  discovery asks about *unscreened* genes. Added a **cold-start** split holding out whole
+  genes (20% of 467) and testing all pairs touching them.
+- `[FINDING]` **Rank-8 GI matrix completion reaches R^2 = 0.488 +- 0.006 warm** -- two
+  orders of magnitude above curated graphs (0.0014) and 19x the inferred-similarity
+  feature (0.0254). **All of it vanishes cold: 0.0012, curated 0.0005.** Nothing we or the
+  field has predicts interactions for a gene never screened.
+- `[VERIFY]` Controls run before believing the 0.49: (i) zero test entries in the training
+  mask (asserted); (ii) **shuffled target gives -0.0001**, so it is not leakage;
+  (iii) rank sweep is a broad plateau (k=4: 0.457, k=8: 0.493, k=16: 0.460, k=32: 0.293),
+  so k=8 is not a tuned artifact. Switched k 16 -> 8 on this evidence.
+
+### Experiment B: cross-cell-line transfer
+- `[FINDING]` Structure inferred in Jurkat and applied to K562 gives **R^2 = 0.055 +-
+  0.003** vs 0.506 same-assay and 0.005 curated. So ~11% of the same-assay signal
+  transfers across cell lines -- real (10x curated) but mostly cell-line-specific. This
+  also **retires the shared-noise confound** flagged as a limitation last round: shared
+  measurement noise cannot survive transfer to an independent screen.
+
+### The mechanism, and the prescription
+- `[FINDING]` Panel c as first drafted claimed the GI matrix is "broadly low-rank" -- but
+  **rank 8 carries only 8.6% of spectral mass** (effective rank 302.7 of 467). Completion
+  is therefore *not* exploiting genuine low-rankness. Measured the real driver: a
+  **coverage sweep** shows R^2 tracks screened pairs per gene almost perfectly --
+  8 pairs/gene -> 0.006, 40 -> 0.120, 80 -> 0.285, 318 -> 0.488. Horlbeck is a 98%-dense
+  all-by-all screen; that density, not the model, is what makes prediction work.
+- `[DECISION]` **This is the positive contribution the paper lacked**: an experimental-design
+  curve. To reach R^2 ~ 0.25 on a new gene you need ~75 screened pairs for it; no graph
+  prior substitutes. That is a budget statement a screening group can act on, and it is
+  the answer to "so what should I do differently?"
+- `[VERIFY]` **Novelty check, and it nearly cost us.** Low-rank completion of GI maps is
+  established: NG-MC (Zitnik & Zupan, J Comput Biol 2015) and IP-MC (2014) both do
+  low-rank probabilistic completion of E-MAPs, and NG-MC's explicit premise is that adding
+  curated gene networks improves it. Claiming the estimator as novel would have been a
+  fatal overlap. **Repositioned**: the estimator is prior art used as an instrument, and
+  our contribution is that its network-guided premise **fails at genome scale** (curated
+  +0.0014 vs completion +0.488) plus the cold-start and density results, which that
+  literature -- built on ~30% missing-at-random E-MAPs -- never tested.
